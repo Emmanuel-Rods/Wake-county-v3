@@ -48,14 +48,14 @@ async function getResultsforStatues(second) {
   //need to delete daily permits or it will just append to the older file
   fs.rmSync("./daily_permits.json", { force: true });
 
-  for (const status of requiredStatues) {
+  for (const status of requiredStatuses) {
     const statusObj = getStatusByName(statusIds, status);
 
     payload.PermitCriteria.PermitStatusId = statusObj.PermitStatusId;
 
     console.log("Getting for status :", statusObj.Name);
 
-    payload.PermitCriteria.IssueDateFrom = getDateDaysAgo(dateoffset); // 2 days ago
+    payload.PermitCriteria.IssueDateFrom = getDateDaysAgo(dateOffset); // 2 days ago
     // console.log(getDateDaysAgo(15));
 
     await getAllResults(payload, statusObj.Name, "daily_permits.json", base); // creates file
