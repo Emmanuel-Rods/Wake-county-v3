@@ -1,14 +1,23 @@
 //status
-const getDataByStatus = require("./db/getPreviousData.js");
-const fetchNewPermits = require("./utils/fetchPermits.js");
+const getDataByStatus = require("./src/db/getPreviousData.js");
+const fetchNewPermits = require("./src/utils/fetchPermits.js");
 
-const cleanJsonFiles = require("./utils/cleaner.js");
-const compareData = require("./utils/compare.js");
+const cleanJsonFiles = require("./src/utils/cleaner.js");
+const compareData = require("./src/utils/compare.js");
 
-const uploadFolder = require("./db/upload.js");
+const uploadFolder = require("./src/db/upload.js");
 
-const cleanupFolders = require("./utils/deleteFolders.js");
+const cleanupFolders = require("./src/utils/deleteFolders.js");
 const fs = require("fs");
+
+// configs
+const {
+  base,
+  dateOffset,
+  requiredStatuses,
+  requiredSecondaryData,
+  updateStatuses,
+} = require("./config.js");
 
 async function process(status) {
   //get
@@ -20,7 +29,7 @@ async function process(status) {
   //new permits
   console.log("\x1b[33m Now downloading and saving new permits... \x1b[0m");
 
-  await fetchNewPermits(datafile); //saves data to permits folder
+  await fetchNewPermits(datafile, "permits", base); //saves data to permits folder
 
   //cleaning
   console.log(
@@ -47,7 +56,7 @@ async function process(status) {
 
 // process(status);
 
-const statuses = ["Issued"];
+const statuses = updateStatuses;
 
 async function update() {
   for (const status of statuses) {

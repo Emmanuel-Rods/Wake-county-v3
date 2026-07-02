@@ -12,6 +12,14 @@ const loadJson = require("./src/utils/load.js");
 const statusIds = loadJson("./site.data/status.ids.json");
 const secondaryIds = loadJson("./site.data/secondary.data.json");
 
+// configs
+const {
+  base,
+  dateOffset,
+  requiredStatuses,
+  requiredSecondaryData,
+} = require("./config.js");
+
 function getStatusByName(jsonData, targetName) {
   return jsonData.Result?.find((item) => item.Name === targetName) || null;
 }
@@ -23,25 +31,6 @@ function getSecondaryDataByName(jsonData, targetName) {
     ) || null
   );
 }
-
-// configs
-const base = "https://wakecountync-energovpub.tylerhost.net/apps"; // no backslash in the end , also link should be after selfservice/api/
-const dateoffset = 1; // 1 is yesterday
-
-const requiredStatues = [
-  "Issued",
-  "In Review",
-  "On Hold",
-  "Pending Approval",
-  "Submitted",
-];
-
-const requiredSecondaryData = [
-  "Residential - New One- and Two-Family Dwelling",
-  "Commercial New Multi Family",
-  "Commercial New Building or Addition",
-  "Residential Addition",
-];
 
 function getDateDaysAgo(offset = 1) {
   const date = new Date();
