@@ -10,6 +10,9 @@ const get_summary = require("../apis/summary.js");
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// utils
+const { cleanJsonObject } = require("./cleaner.js");
+
 async function fetchNewPermits(file, outputFolder = "permits", base) {
   try {
     // Ensure the "permits" folder exists
@@ -79,11 +82,12 @@ async function fetchNewPermits(file, outputFolder = "permits", base) {
         const safeFileName = `${CaseNumber.replace(/[/\\?%*:|"<>]/g, "-")}.json`;
         const destinationPath = path.join(outputFolder, safeFileName);
 
+        //cleaning the file before writing to skip a step
+        const cleanedData = cleanJsonObject(consolidatedData, safeFileName);
+
         // Write the gathered data to its file
-        fs.writeFileSync(
-          destinationPath,
-          JSON.stringify(consolidatedData, null, 2),
-        );
+        fs.writeFileSync(destinationPath, JSON.stringify(cleanedData, null, 2));
+
         console.log(`Saved -> ${safeFileName}`);
         await delay(500); // doubled the delay timings
       } catch (caseError) {

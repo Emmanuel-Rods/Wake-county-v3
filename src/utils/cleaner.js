@@ -294,4 +294,117 @@ async function cleanJsonFiles(inputFolder, outputFolder) {
 
 // cleanJsonFiles(inputPath, outputPath);
 
-module.exports = cleanJsonFiles;
+/**
+ * Cleans a single permit JSON object.
+ *
+ * @param {Object} inputJson - The parsed raw JSON object.
+ * @param {String} fileName - The name of the file (used for logging missing fields).
+ * @returns {Object} The cleaned JSON object.
+ */
+function cleanJsonObject(inputJson, fileName) {
+  const missingDataLog = [];
+  const cleanedData = {};
+
+  try {
+    // --- 1. PERMIT EXTRACTION ---
+    const permitSource = inputJson.permit?.Result || {};
+    const cleanedPermit = safeExtract(
+      permitSource,
+      REQUIRED_PERMIT_KEYS,
+      "permit",
+      missingDataLog,
+      fileName,
+    );
+
+    const addressSource = permitSource.MainAddressInfo || {};
+    const cleanedAddress = safeExtract(
+      addressSource,
+      REQUIRED_ADDRESS_KEYS,
+      "permit.MainAddressInfo",
+      missingDataLog,
+      fileName,
+    );
+
+    cleanedPermit.MainAddressInfo = cleanedAddress;
+    cleanedData.permit = cleanedPermit;
+
+    // --- 2. CONTACTS EXTRACTION ---
+    const contactsSource = inputJson.contacts || {};
+    cleanedData.contacts = {
+      TotalFound: contactsSource.TotalFound || 0,
+      Result: [],
+    };
+
+    const contactResults = contactsSource.Result;
+    if (Array.isArray(contactResults) && contactResults.length > 0) {
+      contactResults.forEach((contact, idx) => {
+        const cleanedContact = safeExtract(
+          contact,
+          REQUIRED_CONTACT_KEYS,
+          `contacts.Result[${idx}]`,
+          missingDataLog,
+          fileName,
+        );
+        cleanedData.contacts.Result.push(cleanedContact);
+      });
+    } else {
+      missingDataLog.push(`[${fileName}] Missing/Empty: contacts.Result array`);
+    }
+
+    // --- 3. INSPECTIONS EXTRACTION ---
+    const inspectionsSource = inputJson.inspections || {};
+    cleanedData.inspections = {
+      TotalFound: inspectionsSource.TotalFound || 0,
+      Result: [],
+    };
+
+    const inspectionResults = inspectionsSource.Result;
+    if (Array.isArray(inspectionResults) && inspectionResults.length > 0) {
+      inspectionResults.forEach((inspection, idx) => {
+        const cleanedInspection = safeExtract(
+          inspection,
+          REQUIRED_INSPECTION_KEYS,
+          `inspections.Result[${idx}]`,
+          missingDataLog,
+          fileName,
+        );
+        cleanedData.inspections.Result.push(cleanedInspection);
+      });
+    } else {
+      missingDataLog.push(
+        `[${fileName}] Missing/Empty: inspections.Result array`,
+      );
+    }
+
+    // --- 4. SUMMARY EXTRACTION ---
+    const summarySource = inputJson.summary || {};
+    cleanedData.summary = { Result: [] };
+
+    const summaryResults = summarySource.Result;
+    if (Array.isArray(summaryResults) && summaryResults.length > 0) {
+      summaryResults.forEach((summaryItem, idx) => {
+        const cleanedSummary = safeExtract(
+          summaryItem,
+          REQUIRED_SUMMARY_KEYS,
+          `summary.Result[${idx}]`,
+          missingDataLog,
+          fileName,
+        );
+        cleanedData.summary.Result.push(cleanedSummary);
+      });
+    } else {
+      missingDataLog.push(`[${fileName}] Missing/Empty: summary.Result array`);
+    }
+
+    // Return the final cleaned object
+    return cleanedData;
+  } catch (e) {
+    console.error(
+      `\n[CRITICAL ERROR] Failed to process ${fileName}: ${e.message}`,
+    );
+    // Re-throw the error so your outer logic knows this specific file failed
+    throw e;
+  }
+}
+
+module.exports = { cleanJsonFiles, cleanJsonObject };
