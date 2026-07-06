@@ -3,7 +3,6 @@ const fs = require("fs");
 const getAllResults = require("./src/search-permits/search.js");
 const fetchNewPermits = require("./src/utils/fetchPermits.js");
 const uploadFolder = require("./src/db/upload.js");
-const cleanJsonFiles = require("./src/utils/cleaner.js");
 
 const cleanupFolders = require("./src/utils/deleteFolders.js");
 const loadJson = require("./src/utils/load.js");
@@ -77,14 +76,11 @@ async function getResultsforStatues(second) {
 
   // get info
   await fetchNewPermits("daily_permits.json", "daily_permits", base);
-  //clean
-
-  await cleanJsonFiles("daily_permits", "cleaned_daily_permits");
   //push to db
-  await uploadFolder("cleaned_daily_permits");
+  await uploadFolder("daily_permits");
 
   // uncomment later
-  await cleanupFolders(["cleaned_daily_permits", "daily_permits"]);
+  await cleanupFolders(["daily_permits"]);
 }
 
 async function main() {
