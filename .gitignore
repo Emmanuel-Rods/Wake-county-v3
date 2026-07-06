@@ -3,3 +3,4 @@ node_modules/
 permits/
 site.data/secondary.data.json
 site.data/status.ids.json
+daily_permits.json
