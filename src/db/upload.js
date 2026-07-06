@@ -49,8 +49,9 @@ async function uploadFolder(FOLDER_PATH) {
         const fileContent = await fs.readFile(filePath, "utf-8");
         const rawJson = JSON.parse(fileContent);
 
+        const permit_hash = rawJson.permit_hash;
         // --- 2. CLEAN PARSING ---
-        const permitBlock = rawJson.permit || {};
+        const permitBlock = rawJson.permit_data.permit || {};
 
         const pId = permitBlock.PermitId;
         const pNum = permitBlock.PermitNumber;
@@ -69,7 +70,8 @@ async function uploadFolder(FOLDER_PATH) {
           permit_id: pId,
           permit_number: pNum ? pNum : "UNKNOWN",
           status: status ? status : "UNKNOWN",
-          permit_data: rawJson,
+          permit_data: rawJson.permit_data,
+          data_hash: permit_hash,
         });
       } catch (err) {
         console.error(

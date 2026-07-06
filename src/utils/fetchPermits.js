@@ -12,6 +12,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // utils
 const { cleanJsonObject } = require("./cleaner.js");
+const { hash } = require("./create.hash.js");
 
 async function fetchNewPermits(file, outputFolder = "permits", base) {
   try {
@@ -84,9 +85,16 @@ async function fetchNewPermits(file, outputFolder = "permits", base) {
 
         //cleaning the file before writing to skip a step
         const cleanedData = cleanJsonObject(consolidatedData, safeFileName);
-
+        const permit_hash = hash(cleanedData);
+        const data_with_permit_hash = {
+          permit_data: cleanedData,
+          permit_hash: permit_hash,
+        };
         // Write the gathered data to its file
-        fs.writeFileSync(destinationPath, JSON.stringify(cleanedData, null, 2));
+        fs.writeFileSync(
+          destinationPath,
+          JSON.stringify(data_with_permit_hash, null, 2),
+        );
 
         console.log(`Saved -> ${safeFileName}`);
         await delay(500); // doubled the delay timings
