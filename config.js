@@ -3,7 +3,13 @@ const base = "https://wakecountync-energovpub.tylerhost.net/apps"; // No trailin
 const dateOffset = 1; // 1 = yesterday
 
 // statuses that need to pulled using daily.js
-const requiredStatuses = ["Issued", "In Review", "Stop Work Order"];
+const requiredStatuses = [
+  "Issued",
+  "In Review",
+  "Stop Work Order",
+  "On Hold",
+  "Complete",
+];
 
 // permit types
 const requiredSecondaryData = [
@@ -14,7 +20,7 @@ const requiredSecondaryData = [
 ];
 
 //status that need be updated
-const updateStatuses = ["Issued"];
+const updateStatuses = ["Issued", "In Review"];
 
 // exports
 module.exports = {
