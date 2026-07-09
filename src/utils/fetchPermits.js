@@ -40,40 +40,29 @@ async function fetchNewPermits(file, outputFolder = "permits", base) {
       console.log(`Processing Case: ${CaseNumber} (${CaseId})...`);
 
       try {
-        const [contacts, fees, holds, inspections, permit, summary] =
-          await Promise.all([
-            get_contacts(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-            get_fees(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-            get_holds(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-            get_inspection(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-            get_permit(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-            get_summary(CaseId, base).catch((err) => ({
-              error: true,
-              message: err.message,
-            })),
-          ]);
+        const [contacts, inspections, permit, summary] = await Promise.all([
+          get_contacts(CaseId, base).catch((err) => ({
+            error: true,
+            message: err.message,
+          })),
+          get_inspection(CaseId, base).catch((err) => ({
+            error: true,
+            message: err.message,
+          })),
+          get_permit(CaseId, base).catch((err) => ({
+            error: true,
+            message: err.message,
+          })),
+          get_summary(CaseId, base).catch((err) => ({
+            error: true,
+            message: err.message,
+          })),
+        ]);
 
         // Structure the consolidated object
         const consolidatedData = {
           metadata: permitCase, // Optional: keeps original file values alongside details
           contacts,
-          fees,
-          holds,
           inspections,
           permit,
           summary,

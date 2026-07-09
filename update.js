@@ -2,12 +2,17 @@
 const getDataByStatus = require("./src/db/getPreviousData.js");
 const fetchNewPermits = require("./src/utils/fetchPermits.js");
 
-const cleanJsonFiles = require("./src/utils/cleaner.js");
-const compareData = require("./src/utils/compare.js");
+const { comparePermitHashes } = require("./src/utils/hash.compare.js");
 
 const uploadFolder = require("./src/db/upload.js");
 
 const cleanupFolders = require("./src/utils/deleteFolders.js");
+const loadJson = require("./src/utils/load.js");
+const {
+  validateStatuses,
+  validatePermitTypes,
+} = require("./src/utils/validate.config.js");
+
 const fs = require("fs");
 
 // configs
@@ -18,6 +23,12 @@ const {
   requiredSecondaryData,
   updateStatuses,
 } = require("./config.js");
+
+// making sure the files exits
+const statusIds = loadJson("./site.data/status.ids.json");
+
+//validate the the contents of the array matches with the files
+validateStatuses(statusIds, updateStatuses);
 
 async function process(status) {
   //get
@@ -31,18 +42,13 @@ async function process(status) {
 
   await fetchNewPermits(datafile, "permits", base); //saves data to permits folder
 
-  //cleaning
-  console.log(
-    "\x1b[33m Now cleaning and processing permit JSON files... \x1b[0m",
-  );
-
-  await cleanJsonFiles("permits", "cleaned_permits");
-
-  //comparing
+  // comparing
   console.log(
     "\x1b[33m Now comparing cleaned data with existing records... \x1b[0m",
   );
-  await compareData(datafile, "cleaned_permits", "DIFF_FOLDER");
+
+  await comparePermitHashes(datafile, "permits", "DIFF_FOLDER");
+
   //then push the diff folder to db
 
   console.log("\x1b[33m Now pushing folder to DB \x1b[0m");
